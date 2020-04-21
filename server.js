@@ -23,7 +23,7 @@ db.on("error", (error) => console.error(error));
 db.once("open", () => console.log("Connected to Mongoose"));
 
 app.get("/", (req, res) => {
-  res.status(200).json({ msg: "dustedddd", uri: uri });
+  res.status(200).json({ msg: "dustedddd" });
 });
 
 app.use("/user", userRouter);
