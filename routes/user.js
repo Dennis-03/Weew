@@ -297,6 +297,10 @@ router.post("/verify", (req, res) => {
             message: "User is Verified!!",
             data,
           });
+        } else {
+          res.status(400).send({
+            message: "Check your Verification Code",
+          });
         }
       });
   } else {
