@@ -1,0 +1,60 @@
+<!-- <a href="#dd" class="btn btn-primary"> Dennis </a> -->
+<%- include('partials/navbar') %>
+<div class="container" style="margin-top: 75px;">
+  <h1>Contact</h1>
+  <hr />
+  <h2>Unreplied</h2>
+  <table class="table table-hover">
+    <thead>
+      <tr>
+        <th>User Name</th>
+        <th>Email ID</th>
+        <th>Message</th>
+        <th>Time</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <% contact.forEach((contact)=>{ %> <% if(contact.replied==false){ %>
+      <tr>
+        <td><%= contact.username %></td>
+        <td><%= contact.email %></td>
+        <td><%= contact.message %></td>
+        <td>
+          <%= contact.time.toString().slice(0,15) %>
+        </td>
+        <td>
+          <a href="/admin/contact/<%= contact.id %> "
+            ><button class="btn btn-primary">Done</button></a
+          >
+        </td>
+      </tr>
+      <% } %> <% }) %>
+    </tbody>
+  </table>
+  <hr />
+
+  <h2>Replied</h2>
+  <table class="table table-hover">
+    <thead>
+      <tr>
+        <th>User Name</th>
+        <th>Email ID</th>
+        <th>Message</th>
+        <th>Time</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% contact.forEach((contact)=>{ %> <% if(contact.replied==true){ %>
+      <tr>
+        <td><%= contact.username %></td>
+        <td><%= contact.email %></td>
+        <td><%= contact.message %></td>
+        <td>
+          <%= contact.time.toString().slice(0,15) %>
+        </td>
+      </tr>
+      <% } %> <% }) %>
+    </tbody>
+  </table>
+</div>

@@ -1,0 +1,98 @@
+const express = require("express");
+const router = express.Router();
+const multer = require("multer");
+const fs = require("fs");
+
+var storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "uploads/news");
+  },
+  filename: function (req, file, cb) {
+    var fileFormat = file.originalname.split(".");
+    cb(
+      null,
+      file.fieldname +
+        "-" +
+        Date.now() +
+        "." +
+        fileFormat[fileFormat.length - 1]
+    );
+  },
+});
+
+var upload = multer({ storage: storage });
+
+const Contact = require("../models/contacts");
+const News = require("../models/news");
+
+router.get("/contact", (req, res, next) => {
+  Contact.find()
+    .then((contact) => res.render("contact", { contact: contact }))
+    .catch((err) => res.status(400).json("Error: " + err));
+  //   res.render("contact");
+  //   res.status(200).json({ msg: "admin" });
+});
+
+router.get("/contact/:id", async (req, res, next) => {
+  const id = req.params.id;
+  console.log(id);
+  await Contact.findOneAndUpdate(
+    { _id: id },
+    {
+      replied: true,
+    },
+    { new: true }
+  );
+  res.redirect("/admin/contact");
+});
+
+router.post("/news", upload.single("imageSrc"), (req, res, next) => {
+  const newsHeader = req.body.newsHeader;
+  const description = req.body.description;
+  const type = req.body.type;
+  const imageSrc = "uploads/news/" + req.file.filename;
+  // console.log(newsHeader);
+  // console.log(description);
+  // console.log(type);
+  // console.log(imageSrc);
+
+  const newNews = new News({
+    newsHeader,
+    imageSrc,
+    description,
+    type,
+  });
+
+  newNews
+    .save()
+    .then(() => res.redirect("/admin/news"))
+    .catch((err) => res.status(400).json("Error: " + err));
+});
+
+router.get("/news", (req, res, next) => {
+  News.find()
+    .then((news) => res.render("news", { news: news }))
+    .catch((err) => res.status(400).json("Error: " + err));
+});
+
+router.get("/news/delete/:id", async (req, res, next) => {
+  const id = req.params.id;
+  await News.findById(id).then((news) => {
+    fs.unlink(`${news.imageSrc}`, (err) => {
+      if (err) throw err;
+      console.log(`${news.imageSrc} was deleted `);
+    });
+    news.remove();
+  });
+  res.redirect("/admin/news");
+});
+
+function authenticate(name, pwd) {
+  //   console.log(name);
+  //   console.log(pwd);
+  if (pwd == process.env.ADMIN_PASSWORD && name == process.env.ADMIN_NAME) {
+    return true;
+  }
+}
+
+module.exports = router;
