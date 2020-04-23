@@ -7,7 +7,6 @@ const newsSchema = new mongoose.Schema({
   },
   imageSrc: {
     type: String,
-    required: true,
   },
   description: {
     type: String,
@@ -16,6 +15,14 @@ const newsSchema = new mongoose.Schema({
   type: {
     type: String,
     required: true,
+  },
+  status: {
+    type: Boolean,
+    default: true,
+  },
+  archive: {
+    type: Boolean,
+    default: false,
   },
 });
 module.exports = mongoose.model("news", newsSchema);

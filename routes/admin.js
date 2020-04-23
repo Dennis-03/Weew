@@ -96,6 +96,100 @@ router.get("/news/delete/:id", async (req, res, next) => {
   res.redirect("/admin/news");
 });
 
+router.get("/news/archive/:id", async (req, res, next) => {
+  const id = req.params.id;
+  await News.findOneAndUpdate(
+    { _id: id },
+    {
+      archive: true,
+      status: false,
+    },
+    { new: true }
+  );
+  res.redirect("/admin/news");
+});
+
+router.get("/news/publish/:id", async (req, res, next) => {
+  const id = req.params.id;
+  await News.findOneAndUpdate(
+    { _id: id },
+    {
+      status: true,
+    },
+    { new: true }
+  );
+  res.redirect("/admin/news");
+});
+
+router.get("/news/unpublish/:id", async (req, res, next) => {
+  const id = req.params.id;
+  await News.findOneAndUpdate(
+    { _id: id },
+    {
+      status: false,
+    },
+    { new: true }
+  );
+  res.redirect("/admin/news");
+});
+
+router.get("/news/restore/:id", async (req, res, next) => {
+  const id = req.params.id;
+  await News.findOneAndUpdate(
+    { _id: id },
+    {
+      archive: false,
+    },
+    { new: true }
+  );
+  res.redirect("/admin/news");
+});
+
+router.post(
+  "/news/update/:id",
+  upload.single("imageSrc"),
+  async (req, res, next) => {
+    const id = req.params.id;
+    const newsHeader = req.body.newsHeader;
+    const description = req.body.description;
+    const type = req.body.type;
+    console.log(newsHeader);
+    console.log(description);
+    console.log(type);
+    if (req.file != undefined) {
+      const imageSrc = "uploads/news/" + req.file.filename;
+      console.log(imageSrc);
+      await News.findOneAndUpdate(
+        { _id: id },
+        {
+          newsHeader,
+          description,
+          type,
+          imageSrc,
+        },
+        { new: true }
+      );
+      res.redirect("/admin/news");
+    }
+
+    await News.findOneAndUpdate(
+      { _id: id },
+      {
+        newsHeader,
+        description,
+        type,
+      },
+      { new: true }
+    );
+    res.redirect("/admin/news");
+
+    // newNews
+    //   .save()
+    //   .then(() => res.redirect("/admin/news"))
+    //   .catch((err) => res.status(400).json("Error: " + err));
+  }
+);
+
 function authenticate(name, pwd) {
   //   console.log(name);
   //   console.log(pwd);
