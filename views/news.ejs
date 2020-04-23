@@ -93,17 +93,28 @@
                 Type
               </label>
               <div>
-                <label class="radio-inline">
+                <div class="custom-control custom-radio custom-control-inline">
                   <input
                     type="radio"
+                    class="custom-control-input"
                     name="type"
                     value="global"
-                    required
-                  />Global
-                </label>
-                <label class="radio-inline">
-                  <input type="radio" name="type" value="local" />Local
-                </label>
+                  />
+                  <label class="custom-control-label" for="customRadio"
+                    >Global</label
+                  >
+                </div>
+                <div class="custom-control custom-radio custom-control-inline">
+                  <input
+                    type="radio"
+                    class="custom-control-input"
+                    name="type"
+                    value="local"
+                  />
+                  <label class="custom-control-label" for="customRadio2"
+                    >Local</label
+                  >
+                </div>
               </div>
               <label class="col-form-label">
                 Image

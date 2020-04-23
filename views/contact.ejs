@@ -46,14 +46,16 @@
     </thead>
     <tbody>
       <% contact.forEach((contact)=>{ %> <% if(contact.replied==true){ %>
-      <tr>
-        <td><%= contact.username %></td>
-        <td><%= contact.email %></td>
-        <td><%= contact.message %></td>
-        <td>
-          <%= contact.time.toString().slice(0,15) %>
-        </td>
-      </tr>
+      <a href="mailto:<% contact.email %> ">
+        <tr>
+          <td><%= contact.username %></td>
+          <td><%= contact.email %></td>
+          <td><%= contact.message %></td>
+          <td>
+            <%= contact.time.toString().slice(0,15) %>
+          </td>
+        </tr>
+      </a>
       <% } %> <% }) %>
     </tbody>
   </table>

@@ -25,6 +25,15 @@ var upload = multer({ storage: storage });
 const Contact = require("../models/contacts");
 const News = require("../models/news");
 
+router.post("/", (req, res, next) => {
+  const name = req.body.username;
+  const pwd = req.body.password;
+  const auth = authenticate(name, pwd);
+  if (auth) {
+    res.redirect("/admin/news");
+  }
+});
+
 router.get("/contact", (req, res, next) => {
   Contact.find()
     .then((contact) => res.render("contact", { contact: contact }))
