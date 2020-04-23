@@ -24,5 +24,17 @@ const newsSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  pubdate: {
+    type: Date,
+    default: Date.now,
+  },
+  unpubdate: {
+    type: Date,
+    default: Date.now,
+  },
+  archdate: {
+    type: Date,
+    default: Date.now,
+  },
 });
 module.exports = mongoose.model("news", newsSchema);

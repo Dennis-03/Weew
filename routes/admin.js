@@ -98,9 +98,12 @@ router.get("/news/delete/:id", async (req, res, next) => {
 
 router.get("/news/archive/:id", async (req, res, next) => {
   const id = req.params.id;
+  const time = new Date(Date.now());
+  console.log(time);
   await News.findOneAndUpdate(
     { _id: id },
     {
+      archdate: time,
       archive: true,
       status: false,
     },
@@ -111,9 +114,12 @@ router.get("/news/archive/:id", async (req, res, next) => {
 
 router.get("/news/publish/:id", async (req, res, next) => {
   const id = req.params.id;
+  const time = new Date(Date.now());
+  console.log(time);
   await News.findOneAndUpdate(
     { _id: id },
     {
+      pubdate: time,
       status: true,
     },
     { new: true }
@@ -123,10 +129,13 @@ router.get("/news/publish/:id", async (req, res, next) => {
 
 router.get("/news/unpublish/:id", async (req, res, next) => {
   const id = req.params.id;
+  const time = new Date(Date.now());
+  console.log(time);
   await News.findOneAndUpdate(
     { _id: id },
     {
       status: false,
+      unpubdate: time,
     },
     { new: true }
   );
@@ -182,11 +191,6 @@ router.post(
       { new: true }
     );
     res.redirect("/admin/news");
-
-    // newNews
-    //   .save()
-    //   .then(() => res.redirect("/admin/news"))
-    //   .catch((err) => res.status(400).json("Error: " + err));
   }
 );
 

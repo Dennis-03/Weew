@@ -1,4 +1,4 @@
-<div id="archive" class="container tab-pane fade">
+<div id="archive" class="tab-pane fade">
   <table class="table table-hover">
     <thead>
       <tr>
@@ -7,6 +7,7 @@
         <th>Description</th>
         <th>Type</th>
         <th>Actions</th>
+        <th style="width: 320px;">Dates</th>
       </tr>
     </thead>
     <tbody>
@@ -33,6 +34,18 @@
               Restore
             </button>
           </a>
+        </td>
+        <td>
+          Published:-&nbsp;&nbsp;&nbsp;&nbsp; <%=
+          news.pubdate.toString().slice(0,15) %> / <%=
+          news.pubdate.toString().slice(15,25) %>
+          <br />
+          Unpublished:- <%= news.unpubdate.toString().slice(0,15) %> / <%=
+          news.unpubdate.toString().slice(15,25) %>
+          <br />
+          Archived:-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <%=
+          news.archdate.toString().slice(0,15) %> / <%=
+          news.archdate.toString().slice(15,25) %>
         </td>
       </tr>
 
