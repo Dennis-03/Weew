@@ -5,12 +5,26 @@ if (process.env.NODE_ENV !== "production") {
 // const cors = require("cors");
 const express = require("express");
 const app = express();
-const mongoose = require("mongoose");
-
 const expressLayouts = require("express-ejs-layouts");
+const mongoose = require("mongoose");
+const passport = require("passport");
+const session = require("express-session");
+
+require("./middleware/passport")(passport);
+// app.use(passport.session());
+app.use(
+  session({
+    secret: "secret",
+    resave: true,
+    saveUninitialized: true,
+  })
+);
+app.use(passport.initialize());
+app.use(passport.session());
+
+app.set("view engine", "ejs");
 
 // app.use(cors);
-app.set("view engine", "ejs");
 app.set("layout", "layouts/layout");
 app.use("/uploads", express.static("uploads"));
 app.use(expressLayouts);

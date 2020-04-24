@@ -1,7 +1,9 @@
 const express = require("express");
 const bcrypt = require("bcrypt");
 const router = express.Router();
-const salt = bcrypt.genSaltSync(10);
+const jwt = require("jsonwebtoken");
+
+const userAuth = require("../middleware/userauth");
 
 const User = require("../models/users");
 
@@ -10,18 +12,8 @@ const client = require("twilio")(
   process.env.AUTH_TOKEN
 );
 
-// router.get("/", (req, res) => {
-//   res.status(200).send({
-//     message: "You are on Homepage",
-//     info: {
-//       login:
-//         "Send verification code through /login . It contains two params i.e. phone and channel(sms/call)",
-//       verify:
-//         "Verify the recieved code through /verify . It contains two params i.e. phone and code",
-//     },
-//   });
-// });
 router.post("/register", (req, res) => {
+  const salt = bcrypt.genSaltSync(10);
   const phone = req.body.phone;
   const username = req.body.username;
   const email = req.body.email;
@@ -30,7 +22,7 @@ router.post("/register", (req, res) => {
 
   User.find({ phone: phone }).then((user) => {
     if (user.length >= 1) {
-      res.status(400).json({ status: "User exist" });
+      return res.status(400).json({ status: "User exist" });
     }
   });
   if (phone) {
@@ -41,11 +33,6 @@ router.post("/register", (req, res) => {
         channel: "sms",
       })
       .then((data) => {
-        res.status(200).json({
-          message: "Verification is sent!!",
-          phone: phone,
-          data,
-        });
         const newUser = new User({
           username,
           email,
@@ -93,7 +80,7 @@ router.post("/verify", async (req, res) => {
         if (data.status === "approved") {
           update(phone);
           res.status(200).json({
-            message: "User is Verified!!",
+            message: "User is Verified!! And can login",
             data,
           });
           console.log("Verified");
@@ -115,8 +102,50 @@ router.post("/verify", async (req, res) => {
   }
 });
 
-router.post("/login", (req, res) => {
-  res.status(200).json({ msg: "login" });
+router.post("/login", (req, res, next) => {
+  User.find({ phone: req.body.phone })
+    .exec()
+    .then((user) => {
+      if (user.length < 1) {
+        if (user[0].verified == false) {
+          return res.status(401).json({
+            message: "Auth failed",
+          });
+        }
+      }
+      bcrypt.compare(req.body.password, user[0].password, (err, result) => {
+        if (err) {
+          return res.status(401).json({
+            message: "Auth failed",
+          });
+        }
+        if (result) {
+          const token = jwt.sign(
+            {
+              phone: user[0].phone,
+              userId: user[0]._id,
+            },
+            process.env.JWT_KEY,
+            {
+              expiresIn: "1h",
+            }
+          );
+          return res.status(200).json({
+            message: "Auth successful",
+            token: token,
+          });
+        }
+        res.status(401).json({
+          message: "Auth failed",
+        });
+      });
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(500).json({
+        error: err,
+      });
+    });
 });
 
 async function update(phone) {
@@ -128,5 +157,9 @@ async function update(phone) {
     { new: true }
   );
 }
+
+router.get("/details", userAuth, (req, res) => {
+  res.send("Success");
+});
 
 module.exports = router;

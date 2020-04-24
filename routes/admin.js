@@ -1,7 +1,16 @@
 const express = require("express");
 const router = express.Router();
 const multer = require("multer");
+const passport = require("passport");
+const bcrypt = require("bcrypt");
 const fs = require("fs");
+
+const Contact = require("../models/contacts");
+const News = require("../models/news");
+const Admin = require("../models/admins");
+
+const { forwardAuthenticated } = require("../middleware/adminauth");
+const { ensureAuthenticated } = require("../middleware/adminauth");
 
 var storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -22,19 +31,36 @@ var storage = multer.diskStorage({
 
 var upload = multer({ storage: storage });
 
-const Contact = require("../models/contacts");
-const News = require("../models/news");
-
-router.post("/", (req, res, next) => {
-  const name = req.body.username;
+router.post("/create", (req, res, next) => {
+  const username = req.body.username;
   const pwd = req.body.password;
-  const auth = authenticate(name, pwd);
-  if (auth) {
-    res.redirect("/admin/news");
-  }
+  const password = bcrypt.hashSync(pwd, 10);
+  const newAdmin = new Admin({
+    username,
+    password,
+  });
+
+  newAdmin
+    .save()
+    .then(() => res.json({ message: "Admin created successfully" }))
+    .catch((err) => res.status(400).json("Error: " + err));
 });
 
-router.get("/contact", (req, res, next) => {
+router.post("/", (req, res, next) => {
+  passport.authenticate("local", {
+    successRedirect: "/admin/contact",
+    failureRedirect: "/",
+    failureFlash: true,
+  })(req, res, next);
+  // const name = req.body.username;
+  // const pwd = req.body.password;
+  // const auth = authenticate(name, pwd);
+  // if (auth) {
+  //   res.redirect("/admin/news");
+  // }
+});
+
+router.get("/contact", ensureAuthenticated, (req, res, next) => {
   Contact.find()
     .then((contact) => res.render("contact", { contact: contact }))
     .catch((err) => res.status(400).json("Error: " + err));
@@ -53,6 +79,12 @@ router.get("/contact/:id", async (req, res, next) => {
     { new: true }
   );
   res.redirect("/admin/contact");
+});
+
+router.get("/news", ensureAuthenticated, (req, res, next) => {
+  News.find()
+    .then((news) => res.render("news", { news: news }))
+    .catch((err) => res.status(400).json("Error: " + err));
 });
 
 router.post("/news", upload.single("imageSrc"), (req, res, next) => {
@@ -75,12 +107,6 @@ router.post("/news", upload.single("imageSrc"), (req, res, next) => {
   newNews
     .save()
     .then(() => res.redirect("/admin/news"))
-    .catch((err) => res.status(400).json("Error: " + err));
-});
-
-router.get("/news", (req, res, next) => {
-  News.find()
-    .then((news) => res.render("news", { news: news }))
     .catch((err) => res.status(400).json("Error: " + err));
 });
 
@@ -194,12 +220,17 @@ router.post(
   }
 );
 
-function authenticate(name, pwd) {
-  //   console.log(name);
-  //   console.log(pwd);
-  if (pwd == process.env.ADMIN_PASSWORD && name == process.env.ADMIN_NAME) {
-    return true;
-  }
-}
+router.get("/logout", (req, res) => {
+  req.logout();
+  res.redirect("/");
+});
+
+// function authenticate(name, pwd) {
+//   //   console.log(name);
+//   //   console.log(pwd);
+//   if (pwd == process.env.ADMIN_PASSWORD && name == process.env.ADMIN_NAME) {
+//     return true;
+//   }
+// }
 
 module.exports = router;
