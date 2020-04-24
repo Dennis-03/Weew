@@ -1,16 +1,32 @@
 if (process.env.NODE_ENV !== "production") {
   require("dotenv").config();
 }
+
+// const cors = require("cors");
 const express = require("express");
 const app = express();
 const mongoose = require("mongoose");
 
 const expressLayouts = require("express-ejs-layouts");
 
+// app.use(cors);
 app.set("view engine", "ejs");
 app.set("layout", "layouts/layout");
 app.use("/uploads", express.static("uploads"));
 app.use(expressLayouts);
+
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content-Type, Accept, Authorization"
+  );
+  if (req.method === "OPTIONS") {
+    res.header("Access-Control-Allow-Methods", "PUT, POST, PATCH, DELETE, GET");
+    return res.status(200).json({});
+  }
+  next();
+});
 
 const userRouter = require("./routes/user");
 const mainRouter = require("./routes/main");
