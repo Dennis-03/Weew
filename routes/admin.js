@@ -92,6 +92,9 @@ router.post("/news", upload.single("imageSrc"), (req, res, next) => {
   const description = req.body.description;
   const type = req.body.type;
   const imageSrc = "uploads/news/" + req.file.filename;
+  const imageLink =
+    "http://weewapi.herokuapp.com/uploads/news/" + req.file.filename;
+
   // console.log(newsHeader);
   // console.log(description);
   // console.log(type);
@@ -102,6 +105,7 @@ router.post("/news", upload.single("imageSrc"), (req, res, next) => {
     imageSrc,
     description,
     type,
+    imageLink,
   });
 
   newNews
@@ -193,6 +197,8 @@ router.post(
     console.log(type);
     if (req.file != undefined) {
       const imageSrc = "uploads/news/" + req.file.filename;
+      const imageLink =
+        "http://weewapi.herokuapp.com/uploads/news/" + req.file.filename;
       console.log(imageSrc);
       await News.findOneAndUpdate(
         { _id: id },
@@ -201,6 +207,7 @@ router.post(
           description,
           type,
           imageSrc,
+          imageLink,
         },
         { new: true }
       );
